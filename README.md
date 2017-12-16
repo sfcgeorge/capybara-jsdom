@@ -4,7 +4,7 @@ This is an experimental Capybara driver using JSDOM. That means it can run JavaS
 
 You could use Capybara JSDOM for thoroughly testing individual frontend components as fast as possible when they require JavaScript. Then you could use Selenium for a few full page acceptance tests.
 
-Experimental means it's not finished or well tested. It implements just enough of the Capybara API to do a few simple tests, but the rest of the API shouldn't be hard to fill in. I've also only got it to work on 1 test so far, but it's proven the concept works.
+Experimental means it's not finished or well tested. It implements just enough of the Capybara API to do a few simple tests, but the rest of the API shouldn't be hard to fill in. I've got it to work on just a few tests, but it's proven the concept works.
 
 
 ## Installation
@@ -12,7 +12,7 @@ Experimental means it's not finished or well tested. It implements just enough o
 Add it to your Gemfile:
 
 ```ruby
-gem 'capybara-jsdom'
+gem "capybara-jsdom", git: "https://github.com/sfcgeorge/capybara-jsdom"
 ```
 
 Then require and enable it in your spec helper:
