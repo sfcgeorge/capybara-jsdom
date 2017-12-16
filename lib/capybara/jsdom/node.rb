@@ -15,7 +15,7 @@ module Capybara
         nodes = command(<<~JAVASCRIPT)
           [].map.call(#{node}.querySelectorAll('#{query}'), function(n) {
             return cacheNode(n);
-          });
+          })
         JAVASCRIPT
         nodes.map { |n| Node.new(driver, n, browser) }
       end
