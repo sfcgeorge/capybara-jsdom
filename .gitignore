@@ -10,4 +10,4 @@
 # rspec failure tracking
 .rspec_status
 
-/node_modules/
+yarn-error.log
