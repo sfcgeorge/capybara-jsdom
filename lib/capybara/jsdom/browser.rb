@@ -54,7 +54,7 @@ module Capybara
         @cookies = @response.get_fields('set-cookie')
         html = @html.gsub("\n", " ").squeeze(" ").scrub("").force_encoding('UTF-8').gsub("'") { "\\'" }
           # dom = new JSDOM('<!DOCTYPE html><p>Hello world</p><p>foo</p>');
-        @js ||= ExecJS.compile(<<~JAVASCRIPT)
+        @js = ExecJS.compile(<<~JAVASCRIPT)
           const jsdom = require("#{Capybara::Jsdom.root}/node_modules/jsdom");
           #{File.read("#{Capybara::Jsdom.root}/lib/capybara/jsdom/jsdom.js")}
           cookieJar.setCookie('#{@cookies.first}', "#{@current_url}", { loose: true }, function() {});
