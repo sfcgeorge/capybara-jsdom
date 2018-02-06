@@ -111,7 +111,7 @@ module Capybara
               cachedNodes = cachedNodes.concat(cacheNode(xpathResult.snapshotItem(i)));
             };
             return cachedNodes;
-          })(document.evaluate(#{q}#{query}#{q}, document.documentElement, null, dom.window.XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null))
+          })(document.evaluate(#{q}#{query}#{q}, document.documentElement, null, window.XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null))
         JAVASCRIPT
       end
 
