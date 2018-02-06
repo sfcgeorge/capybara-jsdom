@@ -51,13 +51,13 @@ module Capybara
         @response = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
         @html = @response.body
         @status_code = @response.code
-        @cookies = @response.get_fields('set-cookie')
+        @cookies = @response.get_fields("set-cookie")
         html = @html.gsub("\n", " ").squeeze(" ").scrub("").force_encoding('UTF-8').gsub("'") { "\\'" }
           # dom = new JSDOM('<!DOCTYPE html><p>Hello world</p><p>foo</p>');
         @js = ExecJS.compile(<<~JAVASCRIPT)
           const jsdom = require("#{Capybara::Jsdom.root}/node_modules/jsdom");
           #{File.read("#{Capybara::Jsdom.root}/lib/capybara/jsdom/jsdom.js")}
-          cookieJar.setCookie('#{@cookies.first}', "#{@current_url}", { loose: true }, function() {});
+          #{%(cookieJar.setCookie("#{@cookies.first}", "#{@current_url}", { loose: true }, function() {});) if @cookies}
           dom = new JSDOM(
             '#{html}',
             {
@@ -67,7 +67,9 @@ module Capybara
               cookieJar: cookieJar
             }
           );
+          window = dom.window;
           document = dom.window.document;
+          console = dom.window.console;
 
           //JSDOM.fromURL(
           //  "#{@current_url}",
@@ -96,6 +98,18 @@ module Capybara
           [].map.call(document.querySelectorAll('#{query}'), function(n) {
             return cacheNode(n);
           })
+        JAVASCRIPT
+      end
+
+      def find_xpath(query)
+        command(<<~JAVASCRIPT)
+          (function(xpathResult) {
+            var cachedNodes = [];
+            for (var i = 0; i < xpathResult.snapshotLength; i++) {
+              cachedNodes = cachedNodes.concat(cacheNode(xpathResult.snapshotItem(i)));
+            };
+            return cachedNodes;
+          })(document.evaluate('#{query}', document.documentElement, null, dom.window.XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null))
         JAVASCRIPT
       end
 

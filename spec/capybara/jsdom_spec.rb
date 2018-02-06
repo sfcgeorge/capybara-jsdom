@@ -15,9 +15,22 @@ RSpec.describe Capybara::Jsdom, type: :feature do
         # visit "http://localhost:3000/sign_in"
         # visit "https://app.joblab.com/sign_in"
 
-        # expect(page).to have_content("Sinatra")
         expect(page).to have_css("p")
       end
+    end
+  end
+
+  context "loaded page" do
+    before do
+      visit "/frank-says"
+    end
+
+    it "uses selector have_css" do
+      expect(page).to have_css("p")
+    end
+
+    it "uses selector have_content" do
+      expect(page).to have_content("Put this in your pipe")
     end
   end
 end

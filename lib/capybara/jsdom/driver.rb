@@ -44,6 +44,11 @@ module Capybara
         nodes.map { |n| Node.new(self, n, browser) }
       end
 
+      def find_xpath(query)
+        nodes = browser.find_xpath query
+        nodes.map { |n| Node.new(self, n, browser) }
+      end
+
       def go_back
         raise Capybara::NotSupportedByDriverError, "Capybara::Driver::Base#go_back"
       end
