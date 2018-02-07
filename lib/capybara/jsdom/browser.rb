@@ -48,7 +48,9 @@ module Capybara
         @current_url = path
         uri = URI(@current_url)
         req = Net::HTTP::Get.new(uri)
-        @response = Net::HTTP.start(uri.hostname, uri.port) { |h| h.request(req) }
+        @response = Net::HTTP.start(
+          uri.hostname, uri.port, read_timeout: 120
+        ) { |h| h.request(req) }
         @html = @response.body
         @status_code = @response.code
         @cookies = @response.get_fields("set-cookie")
