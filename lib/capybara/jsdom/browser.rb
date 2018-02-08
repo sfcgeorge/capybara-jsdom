@@ -96,16 +96,14 @@ module Capybara
       end
 
       def find_css(query)
-        q = quote(query)
         command(<<~JAVASCRIPT)
-          [].map.call(document.querySelectorAll(#{q}#{query}#{q}), function(n) {
+          [].map.call(document.querySelectorAll(#{quote(query)}), function(n) {
             return cacheNode(n);
           })
         JAVASCRIPT
       end
 
       def find_xpath(query)
-        q = quote(query)
         command(<<~JAVASCRIPT)
           (function(xpathResult) {
             var cachedNodes = [];
@@ -113,7 +111,7 @@ module Capybara
               cachedNodes = cachedNodes.concat(cacheNode(xpathResult.snapshotItem(i)));
             };
             return cachedNodes;
-          })(document.evaluate(#{q}#{query}#{q}, document.documentElement, null, window.XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null))
+          })(document.evaluate(#{quote(query)}, document.documentElement, null, window.XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null))
         JAVASCRIPT
       end
 
@@ -121,10 +119,9 @@ module Capybara
         js.eval command
       end
 
-      private
-
       def quote(query)
-        query =~ /'/ ? '"' : "'"
+        q = query =~ /'/ ? '"' : "'"
+        "#{q}#{query}#{q}"
       end
     end
   end
