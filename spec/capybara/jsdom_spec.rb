@@ -70,6 +70,21 @@ RSpec.describe Capybara::Jsdom, type: :feature do
         find('[name="checker"]').click
         expect(find('[name="checker"]')).not_to be_checked
       end
+
+      it "can double click" do
+        find('[name="checker"]').double_click
+        expect(find('[name="checker"]')).not_to be_checked
+        find('[name="checker"]').click
+        find('[name="checker"]').double_click
+        expect(find('[name="checker"]')).to be_checked
+      end
+
+      it "can trigger" do
+        find('[name="checker"]').trigger :click
+        expect(find('[name="checker"]')).to be_checked
+        find('[name="checker"]').trigger :click
+        expect(find('[name="checker"]')).not_to be_checked
+      end
     end
 
     context "misc" do

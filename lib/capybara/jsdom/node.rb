@@ -35,13 +35,17 @@ module Capybara
 
       def all_text
         text = native_command %(textContent)
-        Capybara::Helpers.normalize_whitespace(text)
+        # Capybara::Helpers.normalize_whitespace(text) # Deprecated
+        text.gsub(/[\u200b\u200e\u200f]/, '')
+            .gsub(/[\ \n\f\t\v\u2028\u2029]+/, ' ')
+            .gsub(/\A[[:space:]&&[^\u00a0]]+/, "")
+            .gsub(/[[:space:]&&[^\u00a0]]+\z/, "")
+            .tr("\u00a0", ' ')
       end
 
       def visible_text
         # FIXME not actually checking visibility yet
-        text = native_command %(textContent)
-        Capybara::Helpers.normalize_whitespace(text)
+        all_text
       end
 
       def [](name)
@@ -74,16 +78,21 @@ module Capybara
         raise NotImplementedError
       end
 
-      def click
+      # TODO: handle keys (held down modifiers?) and options
+      def click(keys = [], **options)
         native_command %(click())
       end
 
-      def right_click
+      # NOTE: selenium seems to do "context click", trigger that instead?
+      # https://github.com/teamcapybara/capybara/blob/faacc7c86510ad0a6e252de518f03fa2867d97e0/lib/capybara/selenium/node.rb#L101
+      def right_click(keys = [], **options)
         raise NotImplementedError
       end
 
-      def double_click
-        raise NotImplementedError
+      # TODO: add a delay?
+      def double_click(keys = [], **options)
+        native_command %(click())
+        native_command %(click())
       end
 
       def send_keys(*args)
@@ -128,7 +137,7 @@ module Capybara
       end
 
       def trigger(event)
-        raise NotSupportedByDriverError, "Capybara::Driver::Node#trigger"
+        native_command %(#{event}())
       end
 
       def ==(other)
