@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency "capybara"
   spec.add_runtime_dependency "commonjs"
-  spec.add_runtime_dependency "mini_racer"
+  # spec.add_runtime_dependency "mini_racer"
   spec.add_runtime_dependency "execjs"
   spec.add_runtime_dependency "execjs-fastnode"
 

@@ -27,7 +27,8 @@ function getContext(uuid) {
 var commands = {
   deleteContext: function(uuid) {
     delete contexts[uuid];
-    return 1;
+    // return 1;
+    return [1]; // Fix: bare values aren't valid JSON
   },
   exit: function(code) {
     process.exit(code)

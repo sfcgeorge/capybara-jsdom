@@ -8,6 +8,7 @@ require "capybara/rspec"
 Capybara.default_driver = :jsdom
 # Capybara.default_driver = :selenium
 Capybara.app = Sinatra::Application
+Capybara.server = :webrick
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

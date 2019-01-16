@@ -39,12 +39,45 @@ module Capybara
 
       def initialize(options = {})
         @options = options.dup
-
-        # @js = MiniRacer::Context.new
-        # js.eval "var global = global || this; var self = self || this;"
       end
 
+      def js
+        $js
+      end
+
+      # Each `load` creates a new context that is then reused for every
+      # `command`. Thus with a lot of tests loading a lot of pages the
+      # Node server keeps a lot of contexts open and runs out of memory.
+      # We must destroy previous contexts before each load.
+      # This may mean we can't parallelize.
+      # ExecjsFastnode does have a finalizer for this purpose but it doesn't
+      # seem to work.
+      # https://github.com/jhawthorn/execjs-fastnode/blob/be8033387d61c58244d75cf4c1ee1b09b7151a70/lib/execjs/fastnode/external_piped_runtime.rb#L119
+      def destroy_previous_contexts
+        return unless $js
+
+        runtime = $js.instance_variable_get :@runtime
+        uuid = $js.instance_variable_get :@uuid
+        runtime.vm.delete_context(uuid)
+      end
+
+      def command(command)
+        js.eval command
+      end
+
+      def quote(query)
+        q = query =~ /'/ ? '"' : "'"
+        "#{q}#{query}#{q}"
+      end
+
+      def html
+        command %(document.head.outerHTML + document.body.outerHTML)
+      end
+
+      # Main entry point
       def load(path)
+        destroy_previous_contexts
+
         @current_url = path
         uri = URI(@current_url)
         req = Net::HTTP::Get.new(uri)
@@ -56,7 +89,7 @@ module Capybara
         @cookies = @response.get_fields("set-cookie")
         html = @html.gsub("\n", " ").squeeze(" ").scrub("").force_encoding('UTF-8').gsub("'") { "\\'" }
           # dom = new JSDOM('<!DOCTYPE html><p>Hello world</p><p>foo</p>');
-        @js = ExecJS.compile(<<~JAVASCRIPT)
+        $js = ExecJS.compile(<<~JAVASCRIPT)
           const jsdom = require("#{Capybara::Jsdom.root}/node_modules/jsdom");
           #{File.read("#{Capybara::Jsdom.root}/lib/capybara/jsdom/jsdom.js")}
           #{%(cookieJar.setCookie("#{@cookies.first}", "#{@current_url}", { loose: true }, function() {});) if @cookies}
@@ -91,10 +124,6 @@ module Capybara
         # end
       end
 
-      def html
-        command %(document.head.outerHTML + document.body.outerHTML)
-      end
-
       def find_css(query)
         command(<<~JAVASCRIPT)
           [].map.call(document.querySelectorAll(#{quote(query)}), function(n) {
@@ -113,15 +142,6 @@ module Capybara
             return cachedNodes;
           })(document.evaluate(#{quote(query)}, document.documentElement, null, window.XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null))
         JAVASCRIPT
-      end
-
-      def command(command)
-        js.eval command
-      end
-
-      def quote(query)
-        q = query =~ /'/ ? '"' : "'"
-        "#{q}#{query}#{q}"
       end
     end
   end
