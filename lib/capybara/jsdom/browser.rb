@@ -26,6 +26,9 @@ ExecJS.runtime =
   ExecJS::FastNode::ExternalPipedRuntime.new(
     name:        "Node.js (V8) fast",
     command:     %w[nodejs node],
+    # command:     ["nodejs --expose-gc", "node"],
+    # command:     ["nodejs --expose-gc", "node --expose-gc"],
+    # command:     "node --expose-gc",
     runner_path: File.join(root, "node_piped_runner.js"),
     encoding:    "UTF-8"
   )

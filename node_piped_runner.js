@@ -27,6 +27,8 @@ function getContext(uuid) {
 var commands = {
   deleteContext: function(uuid) {
     delete contexts[uuid];
+    contexts = {};
+    // global.gc();
     // return 1;
     return [1]; // Fix: bare values aren't valid JSON
   },
@@ -42,7 +44,7 @@ var commands = {
         return vm.runInContext(source, context, "(execjs)");
         // return vm.runInContext(source, context, "(execjs)")(require);
       }
-      result = program();
+      var result = program();
       if (typeof result == 'undefined' && result !== null) {
         return ['ok'];
       } else {
